@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoreo de Reportes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+
+<body>
+    <h1>Monitoreo de Reportes</h1>
+    <p>Esperando nuevos registros...</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.js"></script>
+    <script>
+        let lastReportedNumber = null; // Variable para guardar el último número reportado
+
+        async function checkForNewNumber() {
+            try {
+                const response = await fetch('/check-new-number');
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                const data = await response.json();
+                if (data.newNumber && data.newNumber !== lastReportedNumber) {
+                    lastReportedNumber = data.newNumber; // Actualiza el último número reportado
+                    showNotification(data.newNumber, data.message);
+                }
+            } catch (error) {
+                console.error('Error al verificar nuevo número:', error);
+            }
+        }
+
+        function showNotification(number, message) {
+            Toastify({
+                text: message,
+                duration: 5000,
+                gravity: "top",
+                position: 'right',
+                backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                stopOnFocus: true,
+                onClick: function () {
+                    console.log(`Número registrado: ${number}`);
+                }
+            }).showToast();
+        }
+
+        // Verifica cada 5 segundos
+        setInterval(checkForNewNumber, 5000);
+    </script>
+</body>
+
+</html>
